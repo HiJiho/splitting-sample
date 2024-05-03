@@ -1,28 +1,34 @@
-import { Component } from "react";
 import logo from "./logo.svg";
+import { useState } from "react";
 import "./App.css";
-class App extends Component {
-	state = {
-		SplitMe: null,
+import loadable from "@loadable/component";
+
+// lazy loading 할 컴포넌트 정의
+const SplitMe = loadable(() => import("./SplitMe"), {
+	fallback: <div>loading...</div>,
+});
+
+function App() {
+	const [visible, setVisible] = useState(false);
+	const onClick = () => {
+		setVisible(true);
 	};
-	handleClick = async () => {
-		const loadedModule = await import("./SplitMe");
-		this.setState({
-			SplitMe: loadedModule.default,
-		});
+	// 마우스 올라갔을 때 컴포넌트 프리로딩
+	const onMouseOver = () => {
+		SplitMe.preload();
 	};
-	render() {
-		const { SplitMe } = this.state;
-		return (
-			<div className="App">
-				<header className="App-header">
-					<img src={logo} className="App-logo" alt="logo" />
-					<p onClick={this.handleClick}>Hello React!</p>
-					{SplitMe && <SplitMe />}
-				</header>
-			</div>
-		);
-	}
+
+	return (
+		<div className="App">
+			<header className="App-header">
+				<img src={logo} className="App-logo" alt="logo" />
+				<p onClick={onClick} onMouseOver={onMouseOver}>
+					Hello React!
+				</p>
+				{visible && <SplitMe />}
+			</header>
+		</div>
+	);
 }
 
 export default App;
